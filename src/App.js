@@ -1,15 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import "./App.css";
 
 function App() {
-  const { register, handleSubmit, errors } = useForm();
+  const { register, handleSubmit, errors, formState: {
+    isDirty, dirtyFields, touchFields, isSumitted, isSubmitSuccessful, submitCount,
+    isValid, // for isValid, you need to set the mode
+    isSubmitting, //working with async function
+    isValidating
+  } } = useForm({
+    mode: 'onChange', // for isValid, you need to set the mode
+    defaultValues: {
+      firstName: '',
+      lastNaem: ''
+  });
   const [userInfo, setUserInfo] = useState();
   const onSubmit = (data) => {
     setUserInfo(data);
     console.log(data);
   };
   console.log(errors);
+  
+  // UseEffect
+  React.useEffect(()=> {
+    console.log(formState.errors);
+  }, [formState]);
+  
+  
   return (
     <div className="container">
       <pre>{JSON.stringify(userInfo, undefined, 2)}</pre>
@@ -23,7 +40,11 @@ function App() {
               type="text"
               name="username"
               placeholder="Username"
-              ref={register({ required: "Username is required" })}
+              ref={register({ required: "Username is required",
+                     validate: async () => {
+                       await sleep(1000);
+                       return true;   // for isValidating
+                     })}
             />
           </div>
           <p>{errors.username?.message}</p>
